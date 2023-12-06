@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div
+      id="image-captured-msg"
+      style="display: none"
+      class="flex items-center p-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"
+      role="alert"
+    >
+      <div>
+        <span class="font-medium"
+          >Please capture an image before submitting.</span
+        >
+      </div>
+    </div>
+    <div class="w-full aspect-video">
+      <!-- Video element for displaying the camera feed -->
+      <video id="video" class="w-full h-full object-cover" autoplay></video>
+
+      <!-- Canvas for rendering the captured image -->
+      <canvas
+        id="canvas"
+        class="w-full h-full object-cover"
+        style="display: none"
+      ></canvas>
+
+      <!-- Image element for displaying the captured image -->
+      <img
+        id="capturedImage"
+        src="#"
+        class="w-full h-full object-cover"
+        style="display: none"
+      />
+    </div>
+
+    <script>
+      var video = document.getElementById("video");
+      var canvas = document.getElementById("canvas");
+      var capturedImage = document.getElementById("capturedImage");
+      var retakeButton = document.getElementById("retakeButton");
+      var captureButton = document.getElementById("captureButton");
+      var submitButton = document.getElementById("submitButton");
+      var thankYouAudio = document.getElementById("thankYouAudio");
+      var stream;
+      // Get user media
+      //   document
+      //     .getElementById("clockInButton")
+      //     .addEventListener("click", function () {
+      navigator.mediaDevices
+        .getUserMedia({
+          video: true,
+        })
+        .then(function (mediaStream) {
+          stream = mediaStream;
+          video.srcObject = stream;
+        })
+        .catch(function (error) {
+          console.error("Error accessing the camera:", error);
+        });
+      // });
+
+      // Capture image
+      captureButton.addEventListener("click", function () {
+        canvas.width = 1920;
+        canvas.height = 1080;
+
+        var context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        var dataURL = canvas.toDataURL("image/png");
+        capturedImage.src = dataURL;
+
+        video.style.display = "none";
+        capturedImage.style.display = "block";
+
+        retakeButton.style.display = "block";
+        captureButton.style.display = "none";
+        submitButton.style.display = "block";
+        document.getElementById("image-captured-msg").style.display = "none";
+      });
+
+      // Retake image
+      retakeButton.addEventListener("click", function () {
+        video.style.display = "block";
+        capturedImage.style.display = "none";
+
+        retakeButton.style.display = "none";
+        captureButton.style.display = "block";
+        submitButton.style.display = "none";
+        document.getElementById("image-captured-msg").style.display = "none";
+      });
+    </script>
+  </body>
+</html>

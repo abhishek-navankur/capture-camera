@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Camera Thing</title>
+  </head>
+  <body>
+    <!-- <input type="file" accept="image/*" capture="user"> -->
+
+    <video
+      id="video"
+      width="200"
+      height="200"
+      style="border-radius: 50%; object-fit: cover"
+      autoplay
+      muted
+      playsinline
+    ></video>
+    <img
+      id="image"
+      width="200"
+      height="200"
+      style="border-radius: 50%; object-fit: cover"
+    />
+    <br />
+    <button id="captureBtn">Capture Image</button>
+    <button id="retakeBtn" style="display: none">Retake</button>
+    <canvas id="canvas" width="640" height="480" style="display: none"></canvas>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        const captureBtn = document.getElementById("captureBtn");
+        const retakeBtn = document.getElementById("retakeBtn");
+        const constraints = { video: { facingMode: "user" } };
+        const image = document.getElementById("image");
+        let stream;
+
+        navigator.mediaDevices
+          .getUserMedia(constraints)
+          .then((userStream) => {
+            stream = userStream;
+            video.srcObject = stream;
+          })
+          .catch((error) => {
+            alert("Error accessing the camera:", error);
+          });
+
+        captureBtn.addEventListener("click", function () {
+          const context = canvas.getContext("2d");
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          const imageDataURL = canvas.toDataURL("image/png");
+          video.style.display = "none";
+          image.src = imageDataURL;
+          image.style.display = "block";
+          captureBtn.style.display = "none";
+          retakeBtn.style.display = "inline-block";
+          stopCamera();
+        });
+
+        retakeBtn.addEventListener("click", function () {
+          restartCamera();
+
+          video.style.display = "block";
+          image.style.display = "none";
+          captureBtn.style.display = "inline-block";
+          retakeBtn.style.display = "none";
+        });
+
+        function stopCamera() {
+          if (stream) {
+            const tracks = stream.getTracks();
+            tracks.forEach((track) => track.stop());
+          }
+        }
+
+        function restartCamera() {
+          navigator.mediaDevices
+            .getUserMedia(constraints)
+            .then((userStream) => {
+              stream = userStream;
+              video.srcObject = stream;
+            })
+            .catch((error) => {
+              console.error("Error accessing the camera:", error);
+            });
+        }
+      });
+    </script>
+  </body>
+</html>
